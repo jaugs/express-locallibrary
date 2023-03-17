@@ -1,4 +1,5 @@
 var createError = require('http-errors');
+require ('dotenv'). config ();
 var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
@@ -6,6 +7,7 @@ var logger = require('morgan');
 var indexRouter = require("./routes/index");
 var usersRouter = require("./routes/users");
 const catalogRouter = require("./routes/catalog"); //Import routes for "catalog" area of site
+
 const mongoose = require("mongoose");
 mongoose.set('strictQuery', false);
 const mongoDB = process.env.URL_DB
