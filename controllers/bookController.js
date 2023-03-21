@@ -2,9 +2,8 @@ const Book = require("../models/book");
 const Author = require("../models/author");
 const Genre = require("../models/genre");
 const BookInstance = require("../models/bookinstance");
-
+const { body, validationResult } = require("express-validator");
 const async = require("async");
-//SET DEBUG=express-locallibrary:* & npm start
 
 exports.index = (req, res) => {
   async.parallel(
