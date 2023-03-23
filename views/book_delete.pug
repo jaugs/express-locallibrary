@@ -6,7 +6,7 @@ block content
 
   if book_instances.length
 
-    p #[strong Delete the following book instances before attempting to delete this author.]
+    p #[strong Delete the following book instances before attempting to delete this book:]
 
     div(style='margin-left:20px;margin-top:20px')
 
@@ -15,8 +15,9 @@ block content
       dl
       each bookinstance in book_instances
         dt
-          a(href=bookinstance.url) #{bookinstance.title}
-        dd #{bookinstance.summary}
+          a(href=bookinstance.url) #{book.title}: #{bookinstance.imprint}
+        dd #{bookinstance.status}
+        dd #{bookinstance.due_back}
 
   else
     p Do you really want to delete this Book?
