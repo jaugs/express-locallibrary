@@ -168,11 +168,65 @@ exports.genre_delete_post = (req, res, next) => {
 };
 
 // Display Genre update form on GET.
-exports.genre_update_get = (req, res) => {
-  res.send("NOT IMPLEMENTED: Genre update GET");
-};
+exports.genre_update_get = (req, res, next) => {
+  // Get book, authors and genres for form. 
+  Genre.findById(req.params.id, function (err, genre) {
+    if (err) {
+      return next(err)
+    }
+    if (genre == null) {
+      //no results
+      var err = new Error("Genre not found");
+      err.status = 404;
+      return next(err);
+    }
+    //Success
+    res.render("genre_form", {
+      title: "Update Genre",
+      genre: genre
+    });
+  });
+}
+    
+    
 
 // Handle Genre update on POST.
-exports.genre_update_post = (req, res) => {
-  res.send("NOT IMPLEMENTED: Genre update POST");
-};
+exports.genre_update_post = [
+  // Validate and sanitize name field
+  body("name", "Title must countain at least three characters.")
+    .trim()
+    .isLength({ min: 3 })
+    .escape(),
+  
+  // Process request after validation and sanitization.
+  (req, res, next) => {
+    // Extract the validation errors from a request.
+    const errors = validationResult(req);
+
+  //Create a Genre object with escaped/trimmed data and old id.
+    const genre = new Genre({
+      name: req.body.name,
+      _id: req.params.id, //This is required, or a new ID will be assigned!
+    });
+
+    if (!errors.isEmpty()) {
+      // There are errors. Render form again with sanitized values/error messages.
+        res.render("genre_form", {
+          title: "Update Genre",
+          genre: genre,
+          errors: errors.array(),
+          });
+      return;
+    }
+    
+    // Data from form is valid. Update the record.
+    Book.findByIdAndUpdate(req.params.id, book, {}, (err, thebook) => {
+      if (err) {
+        return next(err);
+      }
+
+      // Successful: redirect to book detail page.
+      res.redirect(thebook.url);
+    });
+  },
+];
