@@ -182,11 +182,76 @@ exports.author_create_post = [
   };
   
   // Display Author update form on GET.
-  exports.author_update_get = (req, res) => {
-    res.send("NOT IMPLEMENTED: Author update GET");
+  exports.author_update_get = (req, res, next) => {
+    Author.findById(req.params.id, function (err, author) {
+      if (err) {
+        return next(err)
+      }
+      if (author == null) {
+        //no results
+        var err = new Error("Author not found");
+        err.status = 404;
+        return next(err);
+      }
+      //Success
+      res.render("author_form", {
+        title: "Update Author",
+        author: author
+      });
+    });
   };
   
   // Handle Author update on POST.
-  exports.author_update_post = (req, res) => {
-    res.send("NOT IMPLEMENTED: Author update POST");
-  };
+  exports.author_update_post = [
+    //Validate/Sanitiza
+    body("first_name", "Must not be empty.")
+      .trim()
+      .isLength({ min: 1})
+      .escape(),
+    body("family_name", "Must not be empty.")
+      .trim()
+      .isLength({ min: 1})
+      .escape(),
+    body("date_of_birth", "Invalid Date")
+      .optional({checkFalsy: true})
+      .isISO8601()
+      .toDate(),
+    body("date_of_death", "Invalid Date")
+      .optional({checkFalsy: true})
+      .isISO8601()
+      .toDate(),
+    
+    //Process request after validation/sanitization
+    (req, res, next) => {
+      const errors = validationResult(req)
+
+    //create Author object with escaped data and current ID
+    var author = new Author({
+      first_name: req.body.first_name,
+      family_name: req.body.family_name,
+      date_of_birth: req.body.date_of_birth,
+      date_of_death: req.body.date_of_death,
+      _id: req.params.id, 
+    });
+
+    if (!errors.isEmpty()) {
+      res.render("author_form", {
+        title: "Update Author",
+        author: author,
+        errors: errors.array(),
+      });
+      return;
+    } else {
+      Author.findByIdAndUpdate(
+        req.params.id,
+        author, 
+        {},
+        function (err, theauthor) {
+          if (err) {
+            return next(err)
+          }
+          res.redirect(theauthor.url);
+        });
+    }
+    }
+  ]

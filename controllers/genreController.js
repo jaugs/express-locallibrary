@@ -204,7 +204,7 @@ exports.genre_update_post = [
     const errors = validationResult(req);
 
   //Create a Genre object with escaped/trimmed data and old id.
-    const genre = new Genre({
+    var genre = new Genre({
       name: req.body.name,
       _id: req.params.id, //This is required, or a new ID will be assigned!
     });
@@ -220,13 +220,13 @@ exports.genre_update_post = [
     }
     
     // Data from form is valid. Update the record.
-    Book.findByIdAndUpdate(req.params.id, book, {}, (err, thebook) => {
+    Genre.findByIdAndUpdate(req.params.id, genre, {}, (err, thegenre) => {
       if (err) {
         return next(err);
       }
 
-      // Successful: redirect to book detail page.
-      res.redirect(thebook.url);
+      // Successful: redirect to genre detail page.
+      res.redirect(thegenre.url);
     });
   },
 ];
